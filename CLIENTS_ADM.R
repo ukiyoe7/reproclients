@@ -1,0 +1,28 @@
+## ATUALIZADOR DE BASE PARA RELATÓRIOS DO ERNANI
+## 23.05.2022
+## SANDRO JAKOSKA
+
+library(DBI)
+library(dplyr)
+library(googlesheets4)
+
+## conexão com banco replica 
+
+con2 <- dbConnect(odbc::odbc(), "reproreplica")
+
+clib <- dbGetQuery(con2,"
+SELECT C.CLICODIGO,
+         CAST (REPLACE(REPLACE(REPLACE(CLICNPJCPF,'/',''),'-',''),'.','') AS NUMERIC(13,0)) CNPJ,
+          CLINOMEFANT NOMEFANTASIA,
+           C.GCLCODIGO CODGRUPO,
+            GCLNOME GRUPO,
+            ZODESCRICAO SETOR FROM CLIEN C
+  LEFT JOIN GRUPOCLI GC ON C.GCLCODIGO=GC.GCLCODIGO         
+   LEFT JOIN (SELECT CLICODIGO,E.ZOCODIGO,ZODESCRICAO FROM ENDCLI E
+    LEFT JOIN (SELECT ZOCODIGO,ZODESCRICAO FROM ZONA)Z ON E.ZOCODIGO=Z.ZOCODIGO WHERE ENDFAT='S') ED ON C.CLICODIGO=ED.CLICODIGO WHERE CLICLIENTE='S' ") 
+
+
+
+range_write("1Ps6TYdK76isatTfR3_7Fye4NolmQ-3uofySheOZS4f8",data=clib,sheet = "DADOS",
+            range = "A1",reformat = FALSE) 
+
