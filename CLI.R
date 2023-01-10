@@ -4,17 +4,27 @@ library(googlesheets4)
 
  con2 <- dbConnect(odbc::odbc(), "reproreplica")
 
- cli <- dbGetQuery(con2,"SELECT DISTINCT C.CLICODIGO,
-                       CLINOMEFANT,
-                        ENDCODIGO,
-                         C.GCLCODIGO,
-                          GCLNOME,
-                         SETOR
-                          FROM CLIEN C
-                           LEFT JOIN (SELECT CLICODIGO,E.ZOCODIGO,ZODESCRICAO SETOR,ENDCODIGO FROM ENDCLI E
-                            LEFT JOIN (SELECT ZOCODIGO,ZODESCRICAO FROM ZONA WHERE ZOCODIGO IN (20,21,22,23,24,25,28))Z ON E.ZOCODIGO=Z.ZOCODIGO WHERE ENDFAT='S')A ON C.CLICODIGO=A.CLICODIGO
-                             LEFT JOIN GRUPOCLI GR ON C.GCLCODIGO=GR.GCLCODIGO
-                             WHERE CLICLIENTE='S'")
+ cli <- dbGetQuery(con2,"SELECT 
+                           DISTINCT C.CLICODIGO,
+                            CLINOMEFANT,
+                             ENDCODIGO,
+                              C.GCLCODIGO,
+                               GCLNOME,
+                                SETOR,
+                                 CIDNOME
+                                  FROM CLIEN C
+                                   LEFT JOIN (SELECT CLICODIGO,
+                                                     E.ZOCODIGO,
+                                                      ZODESCRICAO SETOR,
+                                                       ENDCODIGO,
+                                                        CIDNOME 
+                                                         FROM ENDCLI E
+                                   LEFT JOIN CIDADE CD ON E.CIDCODIGO=CD.CIDCODIGO
+                                    LEFT JOIN (SELECT ZOCODIGO,
+                                                      ZODESCRICAO 
+                                                        FROM ZONA WHERE ZOCODIGO IN (20,21,22,23,24,25,28))Z ON E.ZOCODIGO=Z.ZOCODIGO WHERE ENDFAT='S')A ON C.CLICODIGO=A.CLICODIGO
+                                    LEFT JOIN GRUPOCLI GR ON C.GCLCODIGO=GR.GCLCODIGO
+                                      WHERE CLICLIENTE='S'")
  
  View(cli)
 
